@@ -10,6 +10,10 @@ public class CommunicationProtocol implements Serializable {
     public CommunicationProtocol(String word, String languageCode, Integer port) {
         this.word = word;
         this.languageCode = languageCode;
-        this.port = port;
+        this.port = port; // Dodanie pola portu
+    }
+
+    public Integer getPort() {
+        return port;
     }
 }

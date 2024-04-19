@@ -21,6 +21,11 @@ public class DictionaryServer implements Runnable {
     @Override
     public void run() {
         System.out.println("Dictionary Server started on port " + serverSocket.getLocalPort());
+        if (serverSocket.getLocalPort()==8081) {
+            System.out.println("EN Dictionary Server started");
+        } else {
+            System.out.println("FR Dictionary Server started");
+        }
         while (true) {
             try (Socket clientSocket = serverSocket.accept();
                  ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
@@ -46,11 +51,8 @@ public class DictionaryServer implements Runnable {
         frDictionary.put("kot", "chat");
         frDictionary.put("dom", "maison");
 
-        // Uruchomienie serwerów słownikowych w puli wątków
         executor.execute(new DictionaryServer(8081, enDictionary));
         executor.execute(new DictionaryServer(8082, frDictionary));
-
-        // Zamknięcie executora w odpowiednim momencie, np. przy zamykaniu aplikacji
         executor.shutdown();
     }
 }
