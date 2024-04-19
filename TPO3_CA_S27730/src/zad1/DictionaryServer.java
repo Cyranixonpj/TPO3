@@ -1,19 +1,25 @@
 package zad1;
 
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class DictionaryServer {
+public class DictionaryServer implements Runnable {
     private ServerSocket serverSocket;
     private HashMap<String, String> dictionary;
 
     public DictionaryServer(int port, HashMap<String, String> dictionary) throws IOException {
-        serverSocket = new ServerSocket(port);
+        this.serverSocket = new ServerSocket(port);
         this.dictionary = dictionary;
     }
 
-    public void start() {
+    @Override
+    public void run() {
         System.out.println("Dictionary Server started on port " + serverSocket.getLocalPort());
         while (true) {
             try (Socket clientSocket = serverSocket.accept();
@@ -29,16 +35,22 @@ public class DictionaryServer {
     }
 
     public static void main(String[] args) throws IOException {
+        ExecutorService executor = Executors.newCachedThreadPool();
+
         HashMap<String, String> enDictionary = new HashMap<>();
         enDictionary.put("dom", "house");
         enDictionary.put("kot", "cat");
-        HashMap<String,String>frdictionary = new HashMap<>();
-        frdictionary.put("pies", "chien");
-        frdictionary.put("kot", "chat");
-        frdictionary.put("dom", "maison");
-        DictionaryServer enServer = new DictionaryServer(8081, enDictionary);
-        DictionaryServer frServer = new DictionaryServer(8082, frdictionary);
-        frServer.start();
-        enServer.start();
+
+        HashMap<String, String> frDictionary = new HashMap<>();
+        frDictionary.put("pies", "chien");
+        frDictionary.put("kot", "chat");
+        frDictionary.put("dom", "maison");
+
+        // Uruchomienie serwerów słownikowych w puli wątków
+        executor.execute(new DictionaryServer(8081, enDictionary));
+        executor.execute(new DictionaryServer(8082, frDictionary));
+
+        // Zamknięcie executora w odpowiednim momencie, np. przy zamykaniu aplikacji
+        executor.shutdown();
     }
 }
